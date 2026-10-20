@@ -8,7 +8,7 @@ from homeassistant.components.climate.const import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -53,10 +53,13 @@ class SabianaClimate(CoordinatorEntity, ClimateEntity):
     _attr_max_temp = 30.0
 
     _attr_fan_modes = ["auto", "low", "medium", "high"]
+    _enable_turn_on_off_backwards_compatibility = False
 
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.FAN_MODE
+        | ClimateEntityFeature.TURN_ON
+        | ClimateEntityFeature.TURN_OFF
     )
 
     def __init__(self, coordinator, hub, entry) -> None:
@@ -177,6 +180,18 @@ class SabianaClimate(CoordinatorEntity, ClimateEntity):
             elif hvac_mode == HVACMode.AUTO:
                 await self._hub.write_register(self._hub.cmd_mode, 3) # Auto
 
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_on(self) -> None:
+        """Turn the entity on."""
+        LOGGER.debug("Turning Sabiana climate ON")
+        await self._hub.write_register(self._hub.cmd_on_off, 1)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self) -> None:
+        """Turn the entity off."""
+        LOGGER.debug("Turning Sabiana climate OFF")
+        await self._hub.write_register(self._hub.cmd_on_off, 0)
         await self.coordinator.async_request_refresh()
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable
+from typing import Any, Callable
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -23,10 +23,6 @@ from .const import (
     REG_T2,
     REG_T3,
     REG_SLAVE_MASTER,
-    REG_BOARD_TIME,
-    REG_MACHINE_TIME,
-    REG_TMB_PRESENT,
-    REG_IR_PRESENT,
     REG_DIP3_T3_PROBE_ON,
     REG_T2_PROBE_FOUND,
 )

@@ -2,6 +2,7 @@
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -17,7 +18,11 @@ from .const import (
 )
 from .hub import SabianaHub
 
-PLATFORMS = ["climate", "sensor", "binary_sensor"]
+PLATFORMS: list[Platform] = [
+    Platform.CLIMATE,
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -36,27 +41,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         LOGGER.error("Failed to connect to Sabiana Modbus on %s", port)
         raise ConfigEntryNotReady(f"Failed to connect to Sabiana Modbus on {port}")
 
-    # Auto-detect or load the registered schema configuration
-    await hub.detect_schema()
+    try:
+        # Auto-detect or load the registered schema configuration
+        await hub.detect_schema()
 
+        async def async_update_data() -> dict:
+            """Fetch data from Modbus."""
+            try:
+                return await hub.async_update_data()
+            except Exception as err:
+                raise UpdateFailed(f"Error communicating with Sabiana unit: {err}") from err
 
-    async def async_update_data() -> dict:
-        """Fetch data from Modbus."""
-        try:
-            return await hub.async_update_data()
-        except Exception as err:
-            raise UpdateFailed(f"Error communicating with Sabiana unit: {err}") from err
+        coordinator = DataUpdateCoordinator(
+            hass,
+            LOGGER,
+            name=DOMAIN,
+            update_method=async_update_data,
+            update_interval=timedelta(seconds=scan_interval),
+        )
 
-    coordinator = DataUpdateCoordinator(
-        hass,
-        LOGGER,
-        name=DOMAIN,
-        update_method=async_update_data,
-        update_interval=timedelta(seconds=scan_interval),
-    )
-
-    # Fetch initial data
-    await coordinator.async_config_entry_first_refresh()
+        # Fetch initial data
+        await coordinator.async_config_entry_first_refresh()
+    except Exception:
+        await hub.close()
+        raise
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {

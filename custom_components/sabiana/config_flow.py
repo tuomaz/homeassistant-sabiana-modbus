@@ -1,8 +1,10 @@
 """Config flow for Sabiana Fan Coil integration."""
+from typing import Any
+
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
     DOMAIN,
@@ -57,8 +59,8 @@ class SabianaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     async def async_step_user(
-        self, user_input: dict[str, any] | None = None
-    ) -> FlowResult:
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors = {}
 
