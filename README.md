@@ -14,23 +14,29 @@ This integration features dynamic schema auto-detection to support both standard
   - Real-time ambient air temperature (`T1`).
 - **Diagnostic Sensors (`sensor.sabiana_*`)**:
   - **Ambient Air Temperature (`T1`)**
-  - **Coil Water Temperature (`T2`)**
-  - **Minimum Probe Temperature (`T3`)**
-  - **Board Power-On Time** (total seconds)
-  - **Machine On Time** (total seconds)
+  - **Coil Water Temperature (`T2`)** (automatically reports `Unavailable` when T2 probe is not connected)
+  - **Minimum Probe Temperature (`T3`)** (automatically reports `Unavailable` when T3 probe is disabled via DIP 3)
+  - **Board Power-On Time** (hours)
+  - **Machine On Time** (hours)
   - **T-MB Wall Controller Present** (Yes/No)
   - **IR Receiver Present** (Yes/No)
   - **Slave/Master Mode** (Slave/Master)
 - **Binary Sensors (`binary_sensor.sabiana_*`)**:
-
-
   - **T1 Sensor Fault**
   - **T2 Sensor Fault**
   - **T3 Sensor Fault**
   - **Condensation Alarm**
+  - **T2 Probe Connected**
+  - **T3 Probe Enabled**
 
 ## Installation
 
+### Via HACS (Recommended)
+1. Open **HACS** in Home Assistant.
+2. Add `https://github.com/tuomaz/homeassistant-sabiana-modbus` as a custom repository (Category: **Integration**).
+3. Install **Sabiana Fan Coil** and restart Home Assistant.
+
+### Manual Installation
 1. Copy the `custom_components/sabiana` directory into your Home Assistant `config/custom_components/` folder.
 2. Restart Home Assistant.
 3. Go to **Settings -> Devices & Services -> Add Integration** and search for `Sabiana Fan Coil`.
